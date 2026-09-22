@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thilini & Malaka — 4th December 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1F2A44;
+    --navy-deep:#141C30;
+    --blush:#E39CB0;
+    --rose-deep:#C97B8E;
+    --ivory:#FBF3EA;
+    --gold:#C9A24B;
+    --gold-soft:#E7CE97;
+    --ink:#2B1B14;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;background:var(--ivory);color:var(--ink);font-family:'Jost',sans-serif;overflow:hidden;}
+  h1,h2,h3,.serif{font-family:'Cormorant Garamond',serif;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;background:none;border:none;cursor:pointer;}
+  a{color:inherit;}
+  .hidden{display:none !important;}
+
+  /* ================= ENTRY SCREEN (video) ================= */
+  #entry{
+    position:fixed;inset:0;z-index:200;
+    background:#141C30;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    overflow:hidden;
+    transition:opacity .8s ease, transform .8s ease;
+  }
+  #entry.leaving{opacity:0;transform:translateY(-4%);pointer-events:none;}
+
+  #hero-video{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;
+    filter:saturate(.92) contrast(1.04) brightness(.98);
+  }
+  #entry::before{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(20,28,48,.05) 0%, rgba(20,28,48,.25) 45%, rgba(20,28,48,.82) 82%, rgba(20,28,48,.96) 100%);
+    z-index:1;
+  }
+  #entry-copy, #open-btn{position:relative;z-index:2;}
+
+  .heart-drift{position:absolute;bottom:-40px;font-size:18px;color:var(--blush);opacity:.55;z-index:2;
+    animation:driftUp linear infinite;}
+  @keyframes driftUp{
+    0%{transform:translateY(0) rotate(0deg);opacity:0;}
+    10%{opacity:.6;}
+    100%{transform:translateY(-115vh) rotate(25deg);opacity:0;}
+  }
+
+  #entry-copy{opacity:0;transform:translateY(10px);padding:0 22px 8px;
+    animation:copyIn .8s ease forwards; animation-delay:.5s; text-align:center;}
+  @keyframes copyIn{ to{opacity:1;transform:translateY(0);} }
+  #entry-copy .kicker{font-size:12.5px;letter-spacing:.14em;color:var(--gold-soft);}
+  #entry-copy h1{font-size:clamp(38px,9vw,58px);color:var(--ivory);margin:10px 0 4px;font-weight:500;}
+  #entry-copy .sub{font-size:14.5px;color:#E7DFD2;margin-bottom:26px;}
+
+  #open-btn{
+    opacity:0;animation:copyIn .8s ease forwards;animation-delay:.8s;
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:44px;
+    background:var(--gold);color:var(--navy-deep);
+    padding:14px 30px;border-radius:999px;font-size:14.5px;letter-spacing:.05em;
+    box-shadow:0 10px 24px -8px rgba(0,0,0,.5);
+    transition:transform .25s ease;
+  }
+  #open-btn:hover{transform:translateY(-2px);}
+  #open-btn .env{font-size:16px;}
+  #open-btn:focus-visible{outline:2px solid var(--gold-soft);outline-offset:3px;}
+
+  /* ---- reusable soft floral / gold corner accents for later slides ---- */
+  .page-floral{position:absolute;width:150px;opacity:.5;pointer-events:none;z-index:0;}
+  .page-floral.pf-tl{top:-10px;left:-14px;}
+  .page-floral.pf-br{bottom:-10px;right:-14px;transform:rotate(180deg);}
+  .page-gold{position:absolute;width:150px;opacity:.4;pointer-events:none;z-index:0;}
+  .page-gold.pg-tl{top:-8px;left:-10px;}
+  .page-gold.pg-br{bottom:-8px;right:-10px;transform:rotate(180deg);}
+
+  /* ================= MAIN APP / SLIDES ================= */
+  #app{position:fixed;inset:0;overflow:hidden;background:var(--ivory);}
+  #track{height:100%;width:100%;transition:transform .75s cubic-bezier(.65,0,.2,1);}
+  .slide{
+    height:100vh;width:100%;position:relative;
+    display:flex;align-items:center;justify-content:center;
+    padding:70px 24px;
+    overflow:hidden;
+  }
+  .slide-inner{max-width:640px;width:100%;position:relative;z-index:2;}
+  .center{text-align:center;}
+
+  /* per-slide entrance (only current slide gets .active -> fades content up) */
+  .slide .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease, transform .7s ease;}
+  .slide.active .reveal{opacity:1;transform:translateY(0);}
+  .slide .reveal:nth-child(1){transition-delay:.05s;}
+  .slide .reveal:nth-child(2){transition-delay:.18s;}
+  .slide .reveal:nth-child(3){transition-delay:.3s;}
+  .slide .reveal:nth-child(4){transition-delay:.42s;}
+
+  /* Slide 0 — HERO */
+  #s-hero{background:var(--navy-deep);color:var(--ivory);}
+  #s-hero .bgphoto{position:absolute;inset:0;object-fit:cover;object-position:center 22%;opacity:.55;}
+  #s-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,28,48,.35) 0%, rgba(20,28,48,.75) 75%, rgba(20,28,48,.92) 100%);}
+  #s-hero .kicker{font-size:12.5px;letter-spacing:.16em;color:var(--gold-soft);}
+  #s-hero .names{font-size:clamp(48px,12vw,92px);margin:14px 0 8px;font-weight:500;line-height:1.02;}
+  #s-hero .amp{display:inline-block;color:var(--gold);font-style:italic;font-size:.65em;margin:0 12px;}
+  #s-hero .date{font-size:18px;letter-spacing:.04em;color:#EADFD0;}
+  #s-hero .rule{width:60px;height:1px;background:var(--gold);margin:24px auto;border:none;}
+  #s-hero .venue{font-size:14px;color:#C9BFB0;}
+  #s-hero .swipe-hint{position:absolute;bottom:34px;left:0;right:0;text-align:center;font-size:11.5px;letter-spacing:.08em;color:#B9AE9E;}
+
+  /* Slide 1 — FAMILIES */
+  #s-families{background:var(--ivory);}
+  #s-families p.lead{font-size:16.5px;color:var(--rose-deep);font-style:italic;margin-bottom:30px;}
+  .family-row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .family-card{flex:1 1 210px;max-width:250px;}
+  .family-card .role{font-size:11px;letter-spacing:.1em;color:var(--gold);margin-bottom:8px;}
+  .family-card .parent{font-size:16.5px;line-height:1.55;}
+  .together{margin:32px 0 4px;font-size:13.5px;letter-spacing:.06em;color:var(--navy);}
+
+  /* Slide 2 — GALLERY (horizontal swipe, orthogonal to vertical page nav) */
+  #s-gallery{background:#221912;color:var(--ivory);padding-left:0;padding-right:0;}
+  #s-gallery .gal-head{text-align:center;margin-bottom:18px;}
+  #s-gallery h2{font-size:26px;color:var(--gold-soft);}
+  #s-gallery .gal-sub{font-size:12.5px;color:#C9BEB0;letter-spacing:.06em;}
+  .gal-strip{
+    display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+    padding:6px 22px 14px; -webkit-overflow-scrolling:touch;
+    max-width:100%;
+  }
+  .gal-strip::-webkit-scrollbar{height:5px;}
+  .gal-strip::-webkit-scrollbar-thumb{background:#4a3c2e;border-radius:4px;}
+  .gal-strip img{
+    scroll-snap-align:center;flex:0 0 auto;height:min(52vh,380px);width:auto;
+    border-radius:6px;box-shadow:0 12px 30px -12px rgba(0,0,0,.6);
+  }
+  .gal-hint{text-align:center;font-size:11px;color:#8a7c6c;margin-top:10px;letter-spacing:.06em;}
+
+  /* Slide 3 — COUNTDOWN */
+  #s-count{background:var(--navy);color:var(--ivory);}
+  #s-count h2{font-size:15px;letter-spacing:.12em;color:var(--gold-soft);margin-bottom:8px;}
+  #s-count .sub{font-size:13.5px;color:#C9D0DC;margin-bottom:26px;}
+  .clock{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;}
+  .clock div{min-width:60px;}
+  .clock .num{font-family:'Cormorant Garamond',serif;font-size:42px;}
+  .clock .lbl{font-size:10.5px;letter-spacing:.1em;color:var(--gold-soft);margin-top:2px;}
+
+  /* Slide 4 — DETAILS */
+  #s-details{background:var(--ivory);}
+  #s-details h2{font-size:28px;color:var(--navy-deep);margin-bottom:26px;text-align:center;}
+  .detail-grid{display:grid;gap:20px;text-align:left;}
+  .detail-item{border-left:2px solid var(--gold);padding-left:16px;}
+  .detail-item .dt{font-size:11.5px;letter-spacing:.1em;color:var(--rose-deep);margin-bottom:3px;}
+  .detail-item .dv{font-size:18.5px;}
+  .detail-item .dsub{font-size:13.5px;color:#6b5a4c;margin-top:2px;}
+  .map-link{display:inline-block;margin-top:8px;font-size:13px;color:var(--navy);text-decoration:underline;}
+
+  /* Slide 5 — RSVP */
+  #s-rsvp{background:var(--navy-deep);color:var(--ivory);}
+  #s-rsvp .bgphoto{position:absolute;inset:0;object-fit:cover;opacity:.28;}
+  #s-rsvp::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,28,48,.55),rgba(20,28,48,.88));}
+  .rsvp-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;max-width:440px;margin:0 auto 26px;}
+  .rsvp-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:6px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;text-decoration:none;font-size:13.5px;letter-spacing:.03em;border:1px solid var(--gold-soft);}
+  .btn.primary{background:var(--gold);color:var(--navy-deep);border-color:var(--gold);}
+  .btn.ghost{color:var(--gold-soft);}
+
+  /* Slide 6 — THANK YOU */
+  #s-thanks{background:var(--ivory);}
+  #s-thanks .tiny{font-size:12px;color:#8a7a6c;letter-spacing:.08em;}
+  #s-thanks .sign{font-size:30px;color:var(--navy-deep);margin-top:6px;}
+  #s-thanks .quote{font-size:13.5px;color:#6b5a4c;margin-top:24px;max-width:340px;margin-left:auto;margin-right:auto;}
+
+  /* nav dots */
+  #dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:50;
+    display:flex;flex-direction:column;gap:10px;}
+  #dots button{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);
+    transition:background .3s, transform .3s;}
+  #dots button.active{background:var(--gold);transform:scale(1.3);}
+  #dots.on-light button{background:rgba(43,27,20,.25);}
+  #dots.on-light button.active{background:var(--rose-deep);}
+
+  /* nav arrows */
+  #nav-arrows{position:fixed;left:0;right:0;bottom:18px;z-index:50;
+    display:flex;justify-content:center;gap:16px;}
+  #nav-arrows button{
+    width:38px;height:38px;border-radius:50%;
+    background:rgba(255,255,255,.14);color:var(--ivory);
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    backdrop-filter:blur(4px);
+  }
+  #nav-arrows.on-light button{background:rgba(43,27,20,.08);color:var(--navy-deep);}
+  #nav-arrows button:disabled{opacity:.25;pointer-events:none;}
+  #nav-arrows button:focus-visible, #dots button:focus-visible, .btn:focus-visible, #open-btn:focus-visible{
+    outline:2px solid var(--gold);outline-offset:2px;
+  }
+
+  @media (max-width:480px){
+    .slide{padding:56px 18px;}
+    .family-row{gap:16px;}
+    #s-families .page-floral,
+    #s-details .page-gold,
+    #s-thanks .page-floral{
+      width:100vw;
+      height:100vh;
+    }
+    #s-families .page-floral.pf-tl,
+    #s-details .page-gold.pg-tl,
+    #s-thanks .page-floral.pf-tl{
+      top:0;
+      left:0;
+      transform:none;
+    }
+    #s-families .page-floral.pf-br,
+    #s-details .page-gold.pg-br,
+    #s-thanks .page-floral.pf-br{
+      right:0;
+      bottom:0;
+      transform:rotate(180deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #entry-copy, #open-btn, .heart-drift{animation:none !important;opacity:1 !important;transform:none !important;}
+    #hero-video{display:none;}
+    #entry{background:linear-gradient(180deg,#1F2A44,#141C30);}
+    .slide .reveal{transition:none;opacity:1;transform:none;}
+    #track{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ ENTRY: running couple sticker ============ -->
+<div id="entry">
+  <video id="hero-video" autoplay muted loop playsinline poster="images/hero-poster.jpg">
+    <source src="video/hero.mp4" type="video/mp4">
+  </video>
+
+  <span class="heart-drift" style="left:12%;animation-duration:6.5s;animation-delay:.2s;">♥</span>
+  <span class="heart-drift" style="left:78%;font-size:14px;animation-duration:8s;animation-delay:1.5s;">♥</span>
+  <span class="heart-drift" style="left:50%;font-size:12px;animation-duration:7.2s;animation-delay:3s;">♥</span>
+
+  <div id="entry-copy">
+    <div class="kicker">YOU'RE INVITED TO THE WEDDING OF</div>
+    <h1>Thilini &amp; Malaka</h1>
+    <div class="sub">Friday, 4th December 2026 · Kandy</div>
+  </div>
+
+  <button id="open-btn" type="button">
+    <span class="env">✉</span> Open Invitation
+  </button>
+</div>
+
+<!-- ============ MAIN APP: swipeable slides ============ -->
+<div id="app" class="app hidden">
+
+  <div id="dots" aria-hidden="true">
+    <button data-i="0" class="active" aria-label="Slide 1"></button>
+    <button data-i="1" aria-label="Slide 2"></button>
+    <button data-i="2" aria-label="Slide 3"></button>
+    <button data-i="3" aria-label="Slide 4"></button>
+    <button data-i="4" aria-label="Slide 5"></button>
+    <button data-i="5" aria-label="Slide 6"></button>
+    <button data-i="6" aria-label="Slide 7"></button>
+  </div>
+
+  <div id="nav-arrows">
+    <button id="prevBtn" aria-label="Previous section">↑</button>
+    <button id="nextBtn" aria-label="Next section">↓</button>
+  </div>
+
+  <div id="track">
+
+    <!-- 0 HERO -->
+    <section class="slide" id="s-hero">
+      <img class="bgphoto" src="images/couple-walk-3.jpg" alt="">
+      <div class="slide-inner center">
+        <div class="reveal kicker">TOGETHER WITH THEIR FAMILIES</div>
+        <h1 class="reveal names">Thilini<span class="amp">&amp;</span>Malaka</h1>
+        <div class="reveal date">Friday, the 4th of December, 2026</div>
+        <hr class="reveal rule">
+        <div class="reveal venue">The Golden Crown Hotel, Ampitiya, Kandy</div>
+      </div>
+      <div class="swipe-hint">SWIPE UP ↑</div>
+    </section>
+
+    <!-- 1 FAMILIES -->
+    <section class="slide" id="s-families">
+      <svg class="page-floral pf-tl" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#8FA377" stroke-width="1.4" fill="none" opacity=".75">
+          <path d="M8 6 C 30 22, 42 42, 46 70"/>
+          <path d="M4 24 C 20 30, 32 40, 38 56"/>
+        </g>
+        <g transform="translate(20,14) rotate(-8)">
+          <circle r="11" fill="#FFFFFF"/><circle r="7.5" cx="4" cy="-2" fill="#F6ECE2"/><circle r="6" cx="-3" cy="4" fill="#FBF6EF"/>
+          <circle r="3.4" fill="#E8B23B" opacity=".8"/>
+        </g>
+        <g transform="translate(40,34) rotate(10) scale(.7)">
+          <circle r="11" fill="#F6ECE2"/><circle r="7.5" cx="4" cy="-2" fill="#FFFFFF"/><circle r="6" cx="-3" cy="4" fill="#F6ECE2"/>
+          <circle r="3.4" fill="#E8B23B" opacity=".8"/>
+        </g>
+        <g transform="translate(54,58) rotate(-4) scale(.5)">
+          <circle r="11" fill="#FFFFFF"/><circle r="7.5" cx="4" cy="-2" fill="#F6ECE2"/><circle r="6" cx="-3" cy="4" fill="#FBF6EF"/>
+          <circle r="3.4" fill="#E8B23B" opacity=".8"/>
+        </g>
+        <g fill="#7C9464" opacity=".85">
+          <ellipse cx="14" cy="30" rx="4" ry="10" transform="rotate(-30 14 30)"/>
+          <ellipse cx="30" cy="52" rx="3.6" ry="9" transform="rotate(10 30 52)"/>
+          <ellipse cx="46" cy="72" rx="3.2" ry="8" transform="rotate(-15 46 72)"/>
+        </g>
+      </svg>
+      <svg class="page-floral pf-br" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#8FA377" stroke-width="1.4" fill="none" opacity=".75">
+          <path d="M8 6 C 30 22, 42 42, 46 70"/>
+          <path d="M4 24 C 20 30, 32 40, 38 56"/>
+        </g>
+        <g transform="translate(20,14) rotate(-8)">
+          <circle r="11" fill="#FFFFFF"/><circle r="7.5" cx="4" cy="-2" fill="#F6ECE2"/><circle r="6" cx="-3" cy="4" fill="#FBF6EF"/>
+          <circle r="3.4" fill="#E8B23B" opacity=".8"/>
+        </g>
+        <g transform="translate(40,34) rotate(10) scale(.7)">
+          <circle r="11" fill="#F6ECE2"/><circle r="7.5" cx="4" cy="-2" fill="#FFFFFF"/><circle r="6" cx="-3" cy="4" fill="#F6ECE2"/>
+          <circle r="3.4" fill="#E8B23B" opacity=".8"/>
+        </g>
+        <g fill="#7C9464" opacity=".85">
+          <ellipse cx="14" cy="30" rx="4" ry="10" transform="rotate(-30 14 30)"/>
+          <ellipse cx="30" cy="52" rx="3.6" ry="9" transform="rotate(10 30 52)"/>
+        </g>
+      </svg>
+      <div class="slide-inner center">
+        <p class="reveal lead">With hearts full of love and gratitude, as they unite in love and marriage</p>
+        <div class="reveal family-row">
+          <div class="family-card">
+            <div class="role">PARENTS</div>
+            <div class="parent">Mr. A. M. K. B. Amarakoon<br>&amp; Mrs. S. M. J. K. Samarakoon</div>
+          </div>
+          <div class="family-card">
+            <div class="role">PARENTS</div>
+            <div class="parent">Mr. (Late) D. M. J. B. Dissanayake<br>&amp; Mrs. K. P. M. L. R. Dissanayake</div>
+          </div>
+        </div>
+        <div class="reveal together">REQUEST THE GRACIOUS PRESENCE OF YOU AND YOUR FAMILY</div>
+      </div>
+    </section>
+
+    <!-- 2 GALLERY -->
+    <section class="slide" id="s-gallery" style="padding-top:70px;padding-bottom:60px;">
+      <div class="slide-inner" style="max-width:100%;">
+        <div class="reveal gal-head">
+          <h2>A Few Moments</h2>
+          <div class="gal-sub">SWIPE SIDEWAYS TO SEE MORE →</div>
+        </div>
+        <div class="reveal gal-strip">
+          <img src="images/groom-solo.jpg" alt="Malaka">
+          <img src="images/bride-solo.jpg" alt="Thilini">
+          <img src="images/couple-bouquet.jpg" alt="Thilini and Malaka">
+          <img src="images/couple-stairs.jpg" alt="Thilini and Malaka">
+          <img src="images/couple-bench.jpg" alt="Thilini and Malaka">
+          <img src="images/rings.jpg" alt="Wedding rings">
+          <img src="images/couple-walk-1.jpg" alt="Thilini and Malaka">
+        </div>
+        <div class="gal-hint">↓ CONTINUE SCROLLING DOWN FOR THE DETAILS</div>
+      </div>
+    </section>
+
+    <!-- 3 COUNTDOWN -->
+    <section class="slide" id="s-count">
+      <div class="slide-inner center">
+        <h2 class="reveal">COUNTING DOWN TO THE POROUWA</h2>
+        <div class="reveal sub">Every day brings them closer</div>
+        <div class="reveal clock" id="clock">
+          <div><div class="num" id="cd-d">00</div><div class="lbl">DAYS</div></div>
+          <div><div class="num" id="cd-h">00</div><div class="lbl">HOURS</div></div>
+          <div><div class="num" id="cd-m">00</div><div class="lbl">MIN</div></div>
+          <div><div class="num" id="cd-s">00</div><div class="lbl">SEC</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 DETAILS -->
+    <section class="slide" id="s-details">
+      <svg class="page-gold pg-tl" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#C9A24B" stroke-width="1.2" fill="none" opacity=".8">
+          <path d="M6 40 C 10 20, 30 8, 46 12 C 34 14, 24 24, 24 36 C 24 46, 34 50, 42 44"/>
+          <path d="M46 12 C 58 14, 66 24, 62 36 C 68 30, 70 18, 60 8"/>
+          <path d="M10 10 C 20 6, 30 2, 40 4"/>
+        </g>
+        <g fill="#C9A24B" opacity=".75">
+          <path d="M40 4 q4 -6 8 0 q-4 3 -8 0z"/>
+          <circle cx="46" cy="46" r="2"/>
+          <circle cx="14" cy="16" r="1.6"/>
+        </g>
+      </svg>
+      <svg class="page-gold pg-br" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#C9A24B" stroke-width="1.2" fill="none" opacity=".8">
+          <path d="M6 40 C 10 20, 30 8, 46 12 C 34 14, 24 24, 24 36 C 24 46, 34 50, 42 44"/>
+          <path d="M46 12 C 58 14, 66 24, 62 36 C 68 30, 70 18, 60 8"/>
+        </g>
+        <g fill="#C9A24B" opacity=".75">
+          <path d="M40 4 q4 -6 8 0 q-4 3 -8 0z"/>
+          <circle cx="46" cy="46" r="2"/>
+        </g>
+      </svg>
+      <div class="slide-inner">
+        <h2 class="reveal">The Details</h2>
+        <div class="reveal detail-grid">
+          <div class="detail-item">
+            <div class="dt">DATE</div>
+            <div class="dv">Friday, 4th December 2026</div>
+            <div class="dsub">Guests are welcome from 9.00 AM onwards</div>
+          </div>
+          <div class="detail-item">
+            <div class="dt">POROUWA CEREMONY</div>
+            <div class="dv">10.11 AM</div>
+            <div class="dsub">Please be seated a little before this auspicious time</div>
+          </div>
+          <div class="detail-item">
+            <div class="dt">VENUE</div>
+            <div class="dv">The Golden Crown Hotel</div>
+            <div class="dsub">Ampitiya, Kandy</div>
+            <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Golden+Crown+Hotel+Ampitiya+Kandy" target="_blank" rel="noopener">View on map →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 RSVP -->
+    <section class="slide" id="s-rsvp">
+      <img class="bgphoto" src="images/couple-bouquet.jpg" alt="">
+      <div class="slide-inner center">
+        <p class="reveal rsvp-quote">Your presence will truly complete their happily ever after</p>
+        <div class="reveal" style="font-size:12.5px;letter-spacing:.1em;color:var(--gold-soft);margin-bottom:16px;">KINDLY RSVP</div>
+        <div class="reveal rsvp-btns">
+          <a class="btn primary" href="tel:+94774182395">Call 077 418 2395</a>
+          <a class="btn ghost" href="https://wa.me/94774182395" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="btn ghost" href="tel:+94772555987">Call 077 255 5987</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 THANK YOU -->
+    <section class="slide" id="s-thanks">
+      <svg class="page-floral pf-tl" style="width:110px;opacity:.35" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#8FA377" stroke-width="1.4" fill="none" opacity=".75">
+          <path d="M8 6 C 30 22, 42 42, 46 70"/>
+        </g>
+        <g transform="translate(20,14) rotate(-8)">
+          <circle r="11" fill="#FFFFFF"/><circle r="7.5" cx="4" cy="-2" fill="#F6ECE2"/><circle r="6" cx="-3" cy="4" fill="#FBF6EF"/>
+          <circle r="3.4" fill="#E8B23B" opacity=".8"/>
+        </g>
+        <g fill="#7C9464" opacity=".85">
+          <ellipse cx="14" cy="30" rx="4" ry="10" transform="rotate(-30 14 30)"/>
+        </g>
+      </svg>
+      <svg class="page-floral pf-br" style="width:110px;opacity:.35" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#8FA377" stroke-width="1.4" fill="none" opacity=".75">
+          <path d="M8 6 C 30 22, 42 42, 46 70"/>
+        </g>
+        <g transform="translate(20,14) rotate(-8)">
+          <circle r="11" fill="#FFFFFF"/><circle r="7.5" cx="4" cy="-2" fill="#F6ECE2"/><circle r="6" cx="-3" cy="4" fill="#FBF6EF"/>
+          <circle r="3.4" fill="#E8B23B" opacity=".8"/>
+        </g>
+        <g fill="#7C9464" opacity=".85">
+          <ellipse cx="14" cy="30" rx="4" ry="10" transform="rotate(-30 14 30)"/>
+        </g>
+      </svg>
+      <div class="slide-inner center">
+        <div class="reveal tiny">WITH LOVE,</div>
+        <div class="reveal sign serif">Thilini &amp; Malaka</div>
+        <div class="reveal quote">"With hearts full of Love and Gratitude"</div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+  /* ---------- Entry: open invitation ---------- */
+  var entry = document.getElementById('entry');
+  var app = document.getElementById('app');
+  var openBtn = document.getElementById('open-btn');
+
+  function openInvitation(){
+    entry.classList.add('leaving');
+    setTimeout(function(){
+      entry.classList.add('hidden');
+      app.classList.remove('hidden');
+      goTo(0, true);
+    }, 750);
+  }
+  openBtn.addEventListener('click', openInvitation);
+
+  /* ---------- Slides navigation ---------- */
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var track = document.getElementById('track');
+  var dots = Array.prototype.slice.call(document.querySelectorAll('#dots button'));
+  var dotsWrap = document.getElementById('dots');
+  var arrowsWrap = document.getElementById('nav-arrows');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var current = 0;
+  var lightSlides = ['s-families','s-details','s-thanks']; // slides with pale background -> dark UI
+
+  function goTo(i, instant){
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    current = i;
+    track.style.transition = instant ? 'none' : '';
+    track.style.transform = 'translateY(-' + (i * 100) + 'vh)';
+    if(instant){ requestAnimationFrame(function(){ track.style.transition = ''; }); }
+
+    slides.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+    dots.forEach(function(d, idx){ d.classList.toggle('active', idx === i); });
+
+    var isLight = lightSlides.indexOf(slides[i].id) !== -1;
+    dotsWrap.classList.toggle('on-light', isLight);
+    arrowsWrap.classList.toggle('on-light', isLight);
+
+    prevBtn.disabled = (i === 0);
+    nextBtn.disabled = (i === slides.length - 1);
+  }
+
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ goTo(parseInt(d.dataset.i, 10)); });
+  });
+  prevBtn.addEventListener('click', function(){ goTo(current - 1); });
+  nextBtn.addEventListener('click', function(){ goTo(current + 1); });
+
+  window.addEventListener('keydown', function(e){
+    if(app.classList.contains('hidden')) return;
+    if(e.key === 'ArrowDown' || e.key === 'PageDown'){ e.preventDefault(); goTo(current + 1); }
+    if(e.key === 'ArrowUp' || e.key === 'PageUp'){ e.preventDefault(); goTo(current - 1); }
+  });
+
+  /* vertical swipe = change slide; horizontal swipe inside .gal-strip is left alone */
+  var touchStartY = null, touchStartX = null, swiping = false;
+  app.addEventListener('touchstart', function(e){
+    var t = e.touches[0];
+    touchStartY = t.clientY; touchStartX = t.clientX;
+    swiping = !!e.target.closest('.gal-strip') === false;
+  }, {passive:true});
+  app.addEventListener('touchend', function(e){
+    if(touchStartY === null || !swiping) { touchStartY = null; return; }
+    var t = e.changedTouches[0];
+    var dy = touchStartY - t.clientY;
+    var dx = touchStartX - t.clientX;
+    if(Math.abs(dy) > 55 && Math.abs(dy) > Math.abs(dx)){
+      goTo(current + (dy > 0 ? 1 : -1));
+    }
+    touchStartY = null;
+  }, {passive:true});
+
+  /* wheel (desktop) — debounced */
+  var wheelLock = false;
+  app.addEventListener('wheel', function(e){
+    if(e.target.closest('.gal-strip')) return;
+    if(wheelLock) return;
+    if(Math.abs(e.deltaY) < 18) return;
+    wheelLock = true;
+    goTo(current + (e.deltaY > 0 ? 1 : -1));
+    setTimeout(function(){ wheelLock = false; }, 850);
+  }, {passive:true});
+
+  /* ---------- Countdown ---------- */
+  var target = new Date('2026-12-04T09:00:00+05:30').getTime();
+  function tick(){
+    var diff = Math.max(0, target - Date.now());
+    var d = Math.floor(diff / 86400000);
+    var h = Math.floor((diff % 86400000) / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    var pad = function(n){ return String(n).padStart(2,'0'); };
+    document.getElementById('cd-d').textContent = pad(d);
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* auto-open after the video has had a moment to play, if no tap */
+  setTimeout(function(){
+    if(!entry.classList.contains('leaving')) openInvitation();
+  }, 7600);
+</script>
+</body>
+</html>
