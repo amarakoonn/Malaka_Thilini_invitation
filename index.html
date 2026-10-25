@@ -138,8 +138,12 @@
   }
   .gal-strip::-webkit-scrollbar{height:5px;}
   .gal-strip::-webkit-scrollbar-thumb{background:#4a3c2e;border-radius:4px;}
-  .gal-strip img{
-    scroll-snap-align:center;flex:0 0 auto;height:min(52vh,380px);width:auto;
+    .gal-strip img{
+    scroll-snap-align:center;flex:0 0 auto;
+    height:min(52vh,380px);
+    width:calc(min(52vh,380px) * 0.667);
+    max-width:none;
+    object-fit:cover;object-position:center;
     border-radius:6px;box-shadow:0 12px 30px -12px rgba(0,0,0,.6);
   }
   .gal-hint{text-align:center;font-size:11px;color:#8a7c6c;margin-top:10px;letter-spacing:.06em;}
